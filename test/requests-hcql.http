@@ -1,0 +1,116 @@
+@cats = http://localhost:4004/hcql/browse
+@admin = http://localhost:4004/hcql/admin
+
+
+### CatalogService.read Books
+GET {{cats}}/Books { ID, title, author } where author like '%Bro%'
+
+
+### Same with body fragment
+GET {{cats}}/Books
+Content-Type: text/plain
+
+{ ID, title, author }
+where author like '%Bro%'
+
+
+### Same with POST
+POST {{cats}}
+Content-Type: text/plain
+
+SELECT from Books [where author like '%Bro%'] {
+  ID, title, author
+}
+
+
+### Same with POST
+POST {{cats}}
+Content-Type: text/plain
+
+CALL submitOrder with { book:201, quantity: 1 }
+
+### AdminService.read Authors
+POST http://localhost:4004/hcql/admin
+Content-Type: text/plain
+
+SELECT from Authors {
+  ID, name, books {
+    ID, title,
+    genre.name as genre
+  }
+}
+
+
+### Same with body as CQN
+POST http://localhost:4004/hcql/admin
+Content-Type: application/json
+
+{ "SELECT": {
+  "from": { "ref": [ "Authors" ] },
+  "columns": [
+    { "ref": [ "ID" ] },
+    { "ref": [ "name" ] },
+    { "ref": [ "books" ], "expand": [
+      { "ref": [ "ID" ] },
+      { "ref": [ "title" ] },
+      { "ref": [ "genre", "name" ], "as": "genre" }
+    ]}
+  ]
+}}
+
+
+### AdminService.insert into Books
+POST http://localhost:4004/hcql/admin
+Content-Type: text/plain
+
+UPSERT into Books {
+  ID: 311, title: 'T1', author: { ID: 101 }
+},
+{
+  ID: 312, title: 'T2', author: { ID: 107 }
+}
+
+###
+POST http://localhost:4004/hcql/admin
+Content-Type: application/json
+
+{ "INSERT": {
+  "into": { "ref": ["Books"] },
+  "entries": [
+    { "title": "T1", "author": {"ID":101} },
+    { "title": "T2", "author": {"ID":107} }
+  ]
+}}
+
+### AdminService.update Books
+POST http://localhost:4004/hcql/admin
+Content-Type: application/json
+
+{ "UPDATE": {
+  "entity": { "ref": ["Books"] },
+  "with": { "title": {"val": "T1"}, "author.ID": {"val": 101} }
+}}
+
+
+### AdminService.insert Authors
+POST http://localhost:4004/hcql/admin
+Content-Type: text/plain
+
+INSERT into Authors columns (
+  ID, name, dateOfBirth, dateOfDeath, placeOfBirth, placeOfDeath
+) values (
+  201, 'George Orwell', '1903-06-25', '1950-01-21', 'Motihari, India', 'London, England'
+)
+
+
+###
+GET http://localhost:4004/hcql/admin/?describe=all
+
+###
+GET http://localhost:4004/hcql/browse/?describe=all
+
+###
+GET http://localhost:4114/hcql/travel/?describe=all
+
+###
+GET http://localhost:4114/hcql/flights/?describe=all

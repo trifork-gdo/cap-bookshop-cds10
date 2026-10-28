@@ -1,0 +1,25 @@
+{
+  "name": "@capire/bookshop",
+  "version": "2.1.11",
+  "description": "Our primer sample for getting started in a nutshell.",
+  "repository": "https://github.com/capire/bookshop",
+  "files": [
+    "app",
+    "srv",
+    "db",
+    "index.cds"
+  ],
+  "devDependencies": {
+    "@cap-js/sqlite": "3.1.2"
+  },
+  "dependencies": {
+    "@sap/cds": "10.2.1"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "cds watch",
+    "repro": "node repro.js deploy",
+    "repro:runtime": "node repro.js runtime"
+  },
+  "license": "Apache-2.0"
+}
